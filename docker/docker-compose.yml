@@ -1,0 +1,63 @@
+version: "3.8"
+
+# ============================================
+# 服务器日志智能分析 —— Docker 容器环境
+# 一键启动：docker-compose up -d
+# ============================================
+
+services:
+  # --- nginx Web 服务器 ---
+  nginx:
+    build: ./nginx
+    container_name: log-analyzer-nginx
+    user: root                                      # Podman 卷挂载权限修复
+    ports:
+      - "8080:80"
+    volumes:
+      - ../logs/nginx:/var/log/nginx          # 挂载日志目录到宿主机
+      - ./nginx/html:/usr/share/nginx/html     # 挂载网页文件
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # 挂载配置文件
+    restart: unless-stopped
+    networks:
+      - log-analyzer-net
+
+  # --- MySQL 数据库 ---
+  mysql:
+    build: ./mysql
+    container_name: log-analyzer-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: app_db
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_pass
+    volumes:
+      - ../logs/mysql:/var/log/mysql           # 挂载日志目录到宿主机
+    restart: unless-stopped
+    networks:
+      - log-analyzer-net
+    command: >
+      --log-error=/var/log/mysql/error.log
+      --slow-query-log=ON
+      --slow-query-log-file=/var/log/mysql/slow.log
+      --long-query-time=2
+
+  # --- SSH 靶机 (模拟被攻击的 Linux 服务器) ---
+  ssh-target:
+    build: ./ssh-target
+    container_name: log-analyzer-ssh
+    cap_add:
+      - NET_ADMIN                                 # iptables 需要网络管理权限
+      - NET_RAW                                   # iptables 需要原始套接字权限
+    ports:
+      - "2222:22"
+    volumes:
+      - ../logs/ssh:/var/log                   # 挂载日志目录到宿主机
+    restart: unless-stopped
+    networks:
+      - log-analyzer-net
+
+networks:
+  log-analyzer-net:
+    driver: bridge

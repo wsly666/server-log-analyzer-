@@ -1,0 +1,35 @@
+# Server Log Intelligent Analyzer - Python Dependencies
+
+# LLM & AI
+langchain>=0.3.0
+langchain-openai>=0.2.0
+openai>=1.0.0
+
+# Log monitoring
+watchdog>=4.0.0
+
+# HTTP client (attack simulation)
+requests>=2.31.0
+
+# SSH connection (rescue execution)
+paramiko>=3.4.0
+
+# Web UI
+streamlit>=1.29.0
+
+# Chart generation
+matplotlib>=3.8.0
+pillow>=10.0.0
+
+# Automation
+pyautogui>=0.9.54
+
+# Data processing
+pydantic>=2.5.0
+pyyaml>=6.0
+
+# email via smtplib (built-in)
+
+# Utilities
+rich>=13.0.0
+python-dotenv>=1.0.0

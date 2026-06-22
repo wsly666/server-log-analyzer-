@@ -1,0 +1,121 @@
+# ============================================
+# 救援剧本配置 (Member A & D)
+# 定义各异常场景对应的自动救援操作序列
+# ============================================
+
+playbooks:
+
+  # --- SQL注入扫描救援 ---
+  sql_injection_scan:
+    attack_type: "SQL注入扫描"
+    min_severity: HIGH
+    actions:
+      - name: "封禁攻击IP"
+        command: "iptables -A INPUT -s {attacker_ip} -j DROP"
+        rollback: "iptables -D INPUT -s {attacker_ip} -j DROP"
+        description: "在防火墙层面阻止攻击IP的所有流量，封禁有效期30分钟"
+        timeout_seconds: 10
+
+      - name: "重载Nginx"
+        command: "(nginx -s reload 2>/dev/null || nginx 2>/dev/null); exit 0"
+        rollback: null
+        description: "尝试重载Web服务器（非关键步骤，失败不影响救援）"
+        timeout_seconds: 10
+
+      - name: "记录救援日志"
+        command: "echo '[{timestamp}] AUTO-RESCUE: Blocked {attacker_ip} - SQL Injection Scan' >> /var/log/rescue.log"
+        rollback: null
+        description: "审计记录"
+        timeout_seconds: 5
+
+      - name: "计划解封（30分钟后）"
+        command: "echo 'iptables -D INPUT -s {attacker_ip} -j DROP' | at now + 30 minutes 2>/dev/null; echo '30分钟后自动解封 {attacker_ip}' >> /var/log/rescue.log"
+        rollback: null
+        description: "设置自动解封，防止误封合法用户"
+        timeout_seconds: 5
+
+  # --- CC并发洪水救援 ---
+  cc_flood:
+    attack_type: "CC并发洪水"
+    min_severity: HIGH
+    actions:
+      - name: "限制攻击IP连接数"
+        command: "iptables -A INPUT -s {attacker_ip} -m connlimit --connlimit-above 20 -j DROP"
+        rollback: "iptables -D INPUT -s {attacker_ip} -m connlimit --connlimit-above 20 -j DROP"
+        description: "限制单个IP的最大并发连接数为20"
+        timeout_seconds: 10
+
+      - name: "启用Nginx限流"
+        command: "(nginx -s reload 2>/dev/null || nginx 2>/dev/null); exit 0"
+        rollback: null
+        description: "尝试重载Nginx以应用限流配置（非关键步骤）"
+        timeout_seconds: 10
+
+      - name: "记录救援日志"
+        command: "echo '[{timestamp}] AUTO-RESCUE: Rate-limited {attacker_ip} - CC Flood Attack' >> /var/log/rescue.log"
+        rollback: null
+        description: "审计记录"
+        timeout_seconds: 5
+
+  # --- SSH暴力破解救援 ---
+  brute_force:
+    attack_type: "暴力破解"
+    min_severity: HIGH
+    actions:
+      - name: "封禁攻击IP"
+        command: "iptables -A INPUT -s {attacker_ip} -j DROP"
+        rollback: "iptables -D INPUT -s {attacker_ip} -j DROP"
+        description: "在防火墙层面封禁攻击IP"
+        timeout_seconds: 10
+
+      - name: "锁定攻击目标账户"
+        command: "passwd -l admin 2>/dev/null || usermod -L admin 2>/dev/null; echo 'Account locked due to brute force' >> /var/log/auth.log"
+        rollback: "passwd -u admin 2>/dev/null || usermod -U admin 2>/dev/null"
+        description: "临时锁定被攻击的账户"
+        timeout_seconds: 10
+
+      - name: "记录救援日志"
+        command: "echo '[{timestamp}] AUTO-RESCUE: Blocked {attacker_ip} - Brute Force Attack' >> /var/log/rescue.log"
+        rollback: null
+        description: "审计记录"
+        timeout_seconds: 5
+
+  # --- XSS攻击救援 ---
+  xss_attack:
+    attack_type: "XSS攻击"
+    min_severity: MEDIUM
+    actions:
+      - name: "封禁攻击IP"
+        command: "iptables -A INPUT -s {attacker_ip} -j DROP"
+        rollback: "iptables -D INPUT -s {attacker_ip} -j DROP"
+        description: "封禁XSS攻击源IP"
+        timeout_seconds: 10
+
+      - name: "重载Nginx"
+        command: "(nginx -s reload 2>/dev/null || nginx 2>/dev/null); exit 0"
+        rollback: null
+        description: "尝试重载Web服务器（非关键步骤，失败不影响救援）"
+        timeout_seconds: 10
+
+      - name: "记录救援日志"
+        command: "echo '[{timestamp}] AUTO-RESCUE: Blocked {attacker_ip} - XSS Attack' >> /var/log/rescue.log"
+        rollback: null
+        description: "审计记录"
+        timeout_seconds: 5
+
+  # --- MySQL连接耗尽救援 ---
+  mysql_connection_exhaustion:
+    attack_type: "MySQL连接耗尽"
+    min_severity: HIGH
+    actions:
+      - name: "刷新MySQL连接"
+        command: "mysqladmin -u root -proot123 flush-hosts 2>/dev/null"
+        rollback: null
+        description: "刷新被阻塞的主机连接"
+        timeout_seconds: 10
+
+      - name: "记录救援日志"
+        command: "echo '[{timestamp}] AUTO-RESCUE: Flushed MySQL connections' >> /var/log/rescue.log"
+        rollback: null
+        description: "审计记录"
+        timeout_seconds: 5

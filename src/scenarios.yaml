@@ -1,0 +1,102 @@
+# ============================================
+# 答辩演示场景剧本 (Member B)
+# 定义三个预设演示场景，一键切换
+# ============================================
+
+scenarios:
+
+  # --- 场景一：SQL 注入扫描攻击 ---
+  - id: sql_injection_demo
+    name: "场景一：SQL注入扫描攻击"
+    description: |
+      攻击者使用自动化工具对网站进行SQL注入漏洞扫描。
+      30秒内向 /product、/search、/login 接口发送大量包含
+      SQL注入payload的恶意请求。
+    attack_type: sql_injection
+    attacker_ip: "10.0.0.100"
+    duration_seconds: 30
+    pre_attack_delay: 3         # 先展示正常日志流 3 秒
+    expected_alerts:
+      - severity: CRITICAL
+        attack_type: "SQL注入扫描"
+        trigger_time: "8-12秒"   # 预期触发时间
+    rescue_actions:
+      - "iptables 封禁攻击IP 10.0.0.100"
+      - "nginx reload"
+    verification: "浏览器访问 http://localhost:8080 → 正常（攻击IP已被封，攻击停止）"
+    demo_script: |
+      【演示步骤】
+      1. 展示 Streamlit 界面，正常日志流稳定滚动
+      2. 说明："现在模拟一次真实的SQL注入攻击"
+      3. 点击"SQL注入攻击"按钮
+      4. 日志流突变，大量SQL注入特征请求出现
+      5. 8-12秒后红色CRITICAL告警弹出
+      6. 展示LLM分析结果
+      7. 自动救援执行，攻击IP被封禁
+      8. 验证：被封IP无法再访问
+
+  # --- 场景二：CC 并发洪水攻击 ---
+  - id: cc_flood_demo
+    name: "场景二：CC并发洪水攻击"
+    description: |
+      攻击者使用大量并发请求淹没服务器，造成正常用户
+      无法访问。20个线程高并发发送请求，模拟DDoS前置攻击。
+    attack_type: cc_flood
+    attacker_ip: "10.0.0.50"
+    duration_seconds: 20
+    pre_attack_delay: 5
+    expected_alerts:
+      - severity: CRITICAL
+        attack_type: "CC并发洪水"
+        trigger_time: "5-10秒"
+    rescue_actions:
+      - "iptables 限流规则"
+      - "nginx 连接数限制"
+      - "nginx reload"
+    verification: "攻击停止后，正常用户恢复访问"
+    demo_script: |
+      【演示步骤】
+      1. 展示正常访问状态
+      2. 点击"CC洪水攻击"按钮
+      3. 请求量瞬间飙升（正常3/s → 攻击200+/s）
+      4. 告警触发
+      5. 救援执行（限流+连接限制）
+      6. 展示攻击前后对比
+
+  # --- 场景三：SSH 暴力破解 ---
+  - id: brute_force_demo
+    name: "场景三：SSH暴力破解攻击"
+    description: |
+      攻击者对登录接口进行暴力破解，尝试大量用户名密码
+      组合，企图获取管理员权限。
+    attack_type: brute_force
+    attacker_ip: "172.16.0.100"
+    duration_seconds: 25
+    pre_attack_delay: 5
+    expected_alerts:
+      - severity: CRITICAL
+        attack_type: "暴力破解"
+        trigger_time: "8-15秒"
+    rescue_actions:
+      - "iptables 封禁攻击IP"
+      - "SSH 锁定攻击账户"
+    verification: "攻击IP被封后，登录请求全部超时"
+    demo_script: |
+      【演示步骤】
+      1. 登录接口正常状态
+      2. 点击"暴力破解"按钮
+      3. /login 接口涌入大量POST请求
+      4. 401错误率飙升
+      5. 检测系统识别同一IP高频登录失败
+      6. 告警触发，自动封禁IP
+
+# ============================================
+# 演示技巧提示
+# ============================================
+demo_tips:
+  - "攻击前先让正常日志跑10-15秒，建立'正常基线'对比"
+  - "攻击时放慢语速，给观众时间观察日志变化"
+  - "LLM分析结果出来时暂停2秒，给评委看清内容"
+  - "救援执行时使用进度条动画，增加视觉效果"
+  - "救援完成后立即验证效果（浏览器访问），证明是真实的"
+  - "准备备用的录屏视频，以防现场环境故障"
