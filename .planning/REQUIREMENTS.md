@@ -46,24 +46,24 @@ Requirements for initial release. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EXT-01 | — | Pending |
-| EXT-03 | — | Pending |
-| EXT-04 | — | Pending |
-| EXT-05 | — | Pending |
-| DET-01 | — | Pending |
-| DET-02 | — | Pending |
-| DET-03 | — | Pending |
-| RES-01 | — | Pending |
-| RES-02 | — | Pending |
-| RES-03 | — | Pending |
-| RPT-01 | — | Pending |
-| RPT-02 | — | Pending |
+| EXT-01 | Phase 1 | Pending |
+| EXT-03 | Phase 1 | Pending |
+| EXT-04 | Phase 1 | Pending |
+| EXT-05 | Phase 1 | Pending |
+| DET-01 | Phase 2 | Pending |
+| DET-02 | Phase 2 | Pending |
+| DET-03 | Phase 2 | Pending |
+| RES-01 | Phase 3 | Pending |
+| RES-02 | Phase 3 | Pending |
+| RES-03 | Phase 3 | Pending |
+| RPT-01 | Phase 4 | Pending |
+| RPT-02 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 12 total
-- Mapped to phases: 0
-- Unmapped: 12 ⚠️
+- Mapped to phases: 12
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-06-23*
-*Last updated: 2026-06-23 after initial definition*
+*Last updated: 2026-06-23 after roadmap creation*
