@@ -23,7 +23,11 @@
   2. 用户选择攻击类型后点击发起，无需登录或额外配置即可完成攻击
   3. 攻击请求到达 Docker nginx 容器，access.log 中出现对应攻击记录，携带正确的攻击源 IP
   4. 攻击面板实时显示攻击状态流转：已发送 → 执行中 → 完成
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md -- Walking skeleton: external attack panel with SQL injection, real-time status, ngrok tunnel
+- [ ] 01-02-PLAN.md -- Remaining attack types (XSS, CC flood, brute force) + attack history + port config
 **UI hint**: yes
 
 ### Phase 2: Detection & Monitoring
@@ -64,7 +68,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. External Attack Panel | 0/TBD | Not started | - |
+| 1. External Attack Panel | 0/2 | Planned | - |
 | 2. Detection & Monitoring | 0/TBD | Not started | - |
 | 3. Rescue Response | 0/TBD | Not started | - |
 | 4. Report & Notification | 0/TBD | Not started | - |
